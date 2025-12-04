@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Smart Plant Green House</title>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- ===== CSS DESIGN ===== -->
+    <style>
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css");
+
+      /* ========= GLOBAL ========= */
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: radial-gradient(circle at top, #0f172a, #020617);
+        color: #e2e8f0;
+        animation: fadeIn 1s ease;
+      }
+
+      /* HEADINGS */
+      h1 {
+        text-align: center;
+      }
+      h1,
+      h2,
+      h3 {
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        color: #7dd3fc;
+      }
+
+      /* ========= LOGIN CARD ========= */
+      #loginForm {
+        width: 340px;
+        margin: 140px auto;
+        padding: 30px;
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
+        backdrop-filter: blur(10px);
+        text-align: center;
+
+        animation: floatUp 0.7s ease forwards;
+      }
+
+      #loginForm input {
+        width: 95%;
+        padding: 12px;
+        margin-top: 10px;
+        background: #020617;
+        color: #22d3ee;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        outline: none;
+        transition: 0.2s ease;
+      }
+
+      #loginForm input::placeholder {
+        color: #64748b;
+      }
+
+      #loginForm input:focus {
+        border-color: #22d3ee;
+        box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+      }
+
+      /* LOGIN BUTTON */
+      #loginForm button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #020617;
+        background: linear-gradient(135deg, #22d3ee, #3b82f6);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+
+        transition: 0.2s ease;
+      }
+
+      #loginForm button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.9);
+      }
+
+      /* ========= DASHBOARD ========= */
+      #dashboard {
+        width: 90%;
+        max-width: 900px;
+        margin: 50px auto;
+      }
+
+      /* ========= CARDS ========= */
+      .card {
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        padding: 20px;
+        margin-bottom: 18px;
+
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.15),
+          inset 0 0 5px rgba(255, 255, 255, 0.05);
+
+        transition: 0.25s ease;
+        animation: floatUp 0.7s ease forwards;
+      }
+
+      .card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 0 35px rgba(56, 189, 248, 0.45),
+          inset 0 0 10px rgba(255, 255, 255, 0.08);
+      }
+
+      /* ========= TITLES + ICON ========= */
+      .card h3 {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        margin: 0;
+        color: #e2e8f0;
+      }
+
+      .card h3::before {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-right: 12px;
+        font-size: 18px;
+        color: #22d3ee;
+      }
+
+      /* ICONS */
+      .card:nth-of-type(1) h3::before {
+        content: "\f043";
+      }
+      .card:nth-of-type(2) h3::before {
+        content: "\f185";
+      }
+      .card:nth-of-type(3) h3::before {
+        content: "\f554";
+      }
+
+      /* ========= VALUES ========= */
+      .value-box {
+        margin-top: 8px;
+        font-size: 34px;
+        font-weight: 700;
+        color: #22d3ee;
+        text-shadow: 0 0 15px rgba(34, 211, 238, 0.8);
+
+        animation: growPulse 2s infinite;
+      }
+
+      /* ========= STATUS ========= */
+      #soilStatus {
+        color: #22c55e;
+      }
+      #lightStatus {
+        color: #facc15;
+      }
+      #motionStatus {
+        color: #fb7185;
+      }
+
+      /* ========= LOGOUT ========= */
+      #logoutBtn {
+        margin-top: 25px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+
+        background: linear-gradient(135deg, #fb7185, #ef4444);
+
+        color: #020617;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(251, 113, 133, 0.65);
+
+        transition: 0.2s ease;
+      }
+
+      #logoutBtn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(251, 113, 133, 0.95);
+      }
+
+      /* ========= ANIMATION ========= */
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes floatUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes growPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
+        }
+      }
+
+      /* STATUS COLOR SHIFT */
+      #soilStatus,
+      #lightStatus,
+      #motionStatus {
+        display: block;
+        margin-top: 6px;
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <h2>Smart Plant Green House</h2>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="loginBtn">Login</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" style="display: none">
+      <h1>Dashboard</h1>
+
+      <div class="card">
+        <h3>Kelembaban Tanah</h3>
+        <div class="value-box" id="soilMoisture">-- %</div>
+        <span id="soilStatus"></span>
+      </div>
+
+      <div class="card">
+        <h3>Tingkat Cahaya</h3>
+        <div class="value-box" id="lightLevel">-- %</div>
+        <span id="lightStatus"></span>
+      </div>
+
+      <div class="card">
+        <h3>Gerakan (PIR)</h3>
+        <div class="value-box" id="motion">--</div>
+        <span id="motionStatus"></span>
+      </div>
+
+      <button id="logoutBtn">Logout</button>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBQoKDjQUrJnQGwAYIR5XsatJ3C9zpVhsQ",
+        authDomain: "rest-api-arduino.firebaseapp.com",
+        databaseURL:
+          "https://rest-api-arduino-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "rest-api-arduino",
+        storageBucket: "rest-api-arduino.firebasestorage.app",
+        messagingSenderId: "354041812074",
+        appId: "1:354041812074:web:f5d3989ebd85d3dfc86613",
+        measurementId: "G-8WJYJ69FY6",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.database();
+
+      const loginForm = document.getElementById("loginForm");
+      const dashboard = document.getElementById("dashboard");
+
+      // LOGIN
+      document.getElementById("loginBtn").addEventListener("click", () => {
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+
+        auth
+          .signInWithEmailAndPassword(email, pass)
+          .then(() => {
+            loginForm.style.display = "none";
+            dashboard.style.display = "block";
+            listenToSensors();
+          })
+          .catch((err) => alert("Login gagal: " + err.message));
+      });
+
+      // LOGOUT
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        auth.signOut().then(() => {
+          dashboard.style.display = "none";
+          loginForm.style.display = "block";
+        });
+      });
+
+      // Database listener
+      function listenToSensors() {
+        const ref = db.ref("greenhouse/sensors");
+
+        ref.on("value", (snapshot) => {
+          const d = snapshot.val() || {};
+          updateSoil(d.soilMoisture || 0);
+          updateLight(d.lightLevel || 0);
+          updateMotion(d.motion || false);
+        });
+      }
+
+      function updateSoil(v) {
+        const el = document.getElementById("soilMoisture");
+        el.innerText = v + " %";
+        pulse(el);
+
+        document.getElementById("soilStatus").innerText =
+          v < 30 ? "Kering" : v < 70 ? "Cukup" : "Basah";
+      }
+
+      function updateLight(v) {
+        const el = document.getElementById("lightLevel");
+        el.innerText = v + " %";
+        pulse(el);
+
+        document.getElementById("lightStatus").innerText =
+          v < 30 ? "Redup" : v < 70 ? "Cukup Terang" : "Terang";
+      }
+
+      function updateMotion(v) {
+        const el = document.getElementById("motion");
+        el.innerText = v ? "Terdeteksi" : "Tidak";
+        pulse(el);
+
+        document.getElementById("motionStatus").innerText = v
+          ? "Ada Gerakan"
+          : "Aman";
+      }
+
+      function pulse(el) {
+        el.style.transform = "scale(1.15)";
+        setTimeout(() => (el.style.transform = "scale(1)"), 150);
+      }
+    </script>
+  </body>
+</html>
